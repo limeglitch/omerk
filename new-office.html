@@ -1,0 +1,102 @@
+<!DOCTYPE html><html lang="ar" dir="rtl">
+<head>
+  <meta charset="UTF-8">
+  <title>تسجيل مكتب جديد</title>
+  <script type="module">
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/9.22.2/firebase-app.js";
+    import { getAuth, createUserWithEmailAndPassword } from "https://www.gstatic.com/firebasejs/9.22.2/firebase-auth.js";
+    import { getFirestore, doc, setDoc, collection, addDoc } from "https://www.gstatic.com/firebasejs/9.22.2/firebase-firestore.js";const firebaseConfig = {
+  apiKey: "AIzaSyDxwgtbrA2RVCwEwbn5_FDRJ20cN-IYAl0",
+  authDomain: "cif225.firebaseapp.com",
+  projectId: "cif225",
+  storageBucket: "cif225.firebasestorage.app",
+  messagingSenderId: "852933662256",
+  appId: "1:852933662256:web:e9ba1b9911f3b2e1ed3ff5",
+  measurementId: "G-J9WTSQ00YL"
+};
+
+const app = initializeApp(firebaseConfig);
+const auth = getAuth();
+const db = getFirestore(app);
+
+document.getElementById("registerBtn").onclick = async () => {
+  const officeName = document.getElementById("officeName").value;
+  const officeAddress = document.getElementById("officeAddress").value;
+  const officePhone = document.getElementById("officePhone").value;
+  const adminName = document.getElementById("adminName").value;
+  const email = document.getElementById("email").value;
+  const password = document.getElementById("password").value;
+
+  if (!officeName || !email || !password || !adminName) {
+    alert("يرجى ملء كل البيانات");
+    return;
+  }
+
+  try {
+    const userCredential = await createUserWithEmailAndPassword(auth, email, password);
+    const user = userCredential.user;
+
+    const officeRef = await addDoc(collection(db, "offices"), {
+      name: officeName,
+      address: officeAddress,
+      phone: officePhone,
+      adminId: user.uid
+    });
+
+    await setDoc(doc(db, "users", user.uid), {
+      uid: user.uid,
+      role: "admin",
+      name: adminName,
+      email: email,
+      officeId: officeRef.id
+    });
+
+    alert("تم تسجيل المكتب بنجاح!");
+    window.location.href = "office.html";
+  } catch (error) {
+    alert("حدث خطأ: " + error.message);
+  }
+};
+
+  </script>
+  <style>
+    body {
+      font-family: 'Cairo', sans-serif;
+      background: linear-gradient(to right, #2c3e50, #2980b9);
+      color: white;
+      text-align: center;
+      padding: 30px;
+    }
+    input {
+      padding: 10px;
+      margin: 10px;
+      width: 80%;
+      border: none;
+      border-radius: 8px;
+      font-size: 16px;
+    }
+    button {
+      padding: 12px 20px;
+      font-size: 18px;
+      border: none;
+      border-radius: 10px;
+      background: #27ae60;
+      color: white;
+      cursor: pointer;
+      margin-top: 20px;
+    }
+    h2 {
+      margin-bottom: 30px;
+    }
+  </style>
+</head>
+<body>
+  <h2>تسجيل مكتب جديد</h2>  <input type="text" id="officeName" placeholder="اسم المكتب">
+  <input type="text" id="officeAddress" placeholder="عنوان المكتب">
+  <input type="text" id="officePhone" placeholder="رقم الهاتف">
+  <input type="text" id="adminName" placeholder="اسم الأدمن">
+  <input type="email" id="email" placeholder="البريد الإلكتروني للأدمن">
+  <input type="password" id="password" placeholder="كلمة المرور"><button id="registerBtn">تسجيل المكتب الجديد</button>
+
+</body>
+</html>
