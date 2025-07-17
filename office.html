@@ -1,63 +1,8 @@
 <!DOCTYPE html>
 <html lang="ar" dir="rtl">
 <head>
-  <meta charset="UTF-8">
+  <meta charset="UTF-8" />
   <title>لوحة تحكم الأدمن</title>
-  <style>
-    body {
-      font-family: 'Cairo', sans-serif;
-      background-color: #121212;
-      color: #f1f1f1;
-      margin: 0;
-      padding: 0;
-      text-align: center;
-    }
-
-    .container {
-      padding: 50px 20px;
-    }
-
-    h2 {
-      font-size: 24px;
-      margin-bottom: 20px;
-    }
-
-    .email {
-      color: #00cec9;
-      font-weight: bold;
-      margin-bottom: 40px;
-    }
-
-    .button {
-      display: block;
-      width: 250px;
-      padding: 15px;
-      margin: 10px auto;
-      background-color: #2c3e50;
-      color: #f1f1f1;
-      border: none;
-      border-radius: 8px;
-      font-size: 16px;
-      cursor: pointer;
-      transition: 0.3s;
-    }
-
-    .button:hover {
-      background-color: #34495e;
-    }
-
-    .logout {
-      background-color: #d63031;
-      margin-top: 30px;
-    }
-
-    footer {
-      margin-top: 60px;
-      color: #888;
-      font-size: 14px;
-    }
-  </style>
-
   <script type="module">
     import { initializeApp } from "https://www.gstatic.com/firebasejs/9.22.2/firebase-app.js";
     import { getAuth, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/9.22.2/firebase-auth.js";
@@ -66,38 +11,80 @@
     const app = initializeApp(firebaseConfig);
     const auth = getAuth();
 
-    const emailSpan = document.getElementById("userEmail");
-    const logoutBtn = document.getElementById("logoutBtn");
+    const welcomeText = document.getElementById("welcomeText");
 
     onAuthStateChanged(auth, (user) => {
       if (user) {
-        emailSpan.textContent = user.email;
+        welcomeText.innerHTML = `مرحبًا بك في مكتبك، ${user.email}`;
       } else {
         window.location.href = "index.html";
       }
     });
 
-    logoutBtn.addEventListener("click", () => {
+    document.getElementById("logoutBtn").addEventListener("click", () => {
       signOut(auth).then(() => {
         window.location.href = "index.html";
       });
     });
   </script>
+
+  <style>
+    body {
+      font-family: 'Cairo', sans-serif;
+      background: #1c1c2d;
+      color: white;
+      text-align: center;
+      padding: 40px;
+    }
+
+    h1 {
+      font-size: 28px;
+      margin-bottom: 30px;
+    }
+
+    .btn {
+      display: block;
+      background-color: #3498db;
+      color: white;
+      text-decoration: none;
+      padding: 14px;
+      margin: 12px auto;
+      width: 250px;
+      border-radius: 10px;
+      font-size: 16px;
+      transition: 0.3s;
+    }
+
+    .btn:hover {
+      background-color: #2980b9;
+    }
+
+    #logoutBtn {
+      background-color: #e74c3c;
+    }
+
+    #logoutBtn:hover {
+      background-color: #c0392b;
+    }
+
+    footer {
+      margin-top: 60px;
+      color: #ccc;
+      font-size: 14px;
+    }
+  </style>
 </head>
 <body>
-  <div class="container">
-    <h2>مرحبًا بك في مكتبك، <span id="userEmail" class="email">...</span></h2>
+  <h1 id="welcomeText">جارٍ تحميل بيانات المكتب...</h1>
 
-    <button class="button" onclick="location.href='cases.html'">📂 القضايا</button>
-    <button class="button" onclick="location.href='members.html'">👥 الأعضاء</button>
-    <button class="button" onclick="location.href='sessions.html'">📅 الجلسات</button>
-    <button class="button" onclick="location.href='reports.html'">📊 التقارير</button>
+  <a href="cases.html" class="btn">📁 القضايا</a>
+  <a href="sessions.html" class="btn">📅 الجلسات</a>
+  <a href="members.html" class="btn">👥 الأعضاء</a>
+  <a href="add-member.html" class="btn">➕ إضافة محامي / سكرتير</a>
+  <button id="logoutBtn" class="btn">🚪 تسجيل الخروج</button>
 
-    <button id="logoutBtn" class="button logout">🚪 تسجيل الخروج</button>
-
-    <footer>
-      برعاية محمد منطاوي • Developed by Lime Glitch
-    </footer>
-  </div>
+  <footer>
+    برعاية محمد منطاوي • Developed by Lime Glitch
+  </footer>
 </body>
 </html>
