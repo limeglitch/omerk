@@ -1,0 +1,115 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+  <meta charset="UTF-8">
+  <title>أعضاء المكتب</title>
+  <script type="module">
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/9.22.2/firebase-app.js";
+    import { getAuth, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/9.22.2/firebase-auth.js";
+    import { getFirestore, collection, query, where, getDocs, updateDoc, deleteDoc, doc } from "https://www.gstatic.com/firebasejs/9.22.2/firebase-firestore.js";
+
+    const firebaseConfig = {
+      apiKey: "AIzaSyDxwgtbrA2RVCwEwbn5_FDRJ20cN-IYAl0",
+      authDomain: "cif225.firebaseapp.com",
+      projectId: "cif225",
+      storageBucket: "cif225.firebasestorage.app",
+      messagingSenderId: "852933662256",
+      appId: "1:852933662256:web:e9ba1b9911f3b2e1ed3ff5",
+      measurementId: "G-J9WTSQ00YL"
+    };
+
+    const app = initializeApp(firebaseConfig);
+    const auth = getAuth();
+    const db = getFirestore(app);
+
+    const membersList = document.getElementById("membersList");
+
+    onAuthStateChanged(auth, async (user) => {
+      if (!user) {
+        location.href = "index.html";
+        return;
+      }
+
+      const userDocRef = doc(db, "users", user.uid);
+      const userSnap = await getDoc(userDocRef);
+
+      if (!userSnap.exists() || userSnap.data().role !== "admin") {
+        alert("هذه الصفحة مخصصة للأدمن فقط");
+        location.href = "office.html";
+        return;
+      }
+
+      const officeId = userSnap.data().officeId;
+      const q = query(collection(db, "users"), where("officeId", "==", officeId), where("role", "!=", "admin"));
+      const querySnapshot = await getDocs(q);
+
+      querySnapshot.forEach(docSnap => {
+        const data = docSnap.data();
+        const div = document.createElement("div");
+        div.className = "card";
+        div.innerHTML = `
+          <p><strong>البريد:</strong> ${data.email}</p>
+          <p><strong>الدور:</strong> ${data.role}</p>
+          <select onchange="changeRole('${docSnap.id}', this.value)">
+            <option disabled selected>تغيير الدور</option>
+            <option value="lawyer">محامي</option>
+            <option value="secretary">سكرتير</option>
+          </select>
+          <button onclick="deleteUser('${docSnap.id}')">❌ حذف</button>
+        `;
+        membersList.appendChild(div);
+      });
+    });
+
+    window.changeRole = async (uid, newRole) => {
+      const ref = doc(db, "users", uid);
+      await updateDoc(ref, { role: newRole });
+      alert("تم تغيير الدور بنجاح");
+      location.reload();
+    };
+
+    window.deleteUser = async (uid) => {
+      if (confirm("هل أنت متأكد من حذف هذا العضو؟")) {
+        await deleteDoc(doc(db, "users", uid));
+        alert("تم حذف العضو");
+        location.reload();
+      }
+    };
+  </script>
+  <style>
+    body {
+      font-family: 'Cairo', sans-serif;
+      background: linear-gradient(to right, #8e44ad, #3498db);
+      color: white;
+      padding: 30px;
+      text-align: center;
+    }
+    .card {
+      background: white;
+      color: #333;
+      border-radius: 10px;
+      padding: 20px;
+      margin: 15px auto;
+      width: 80%;
+      box-shadow: 0 4px 8px rgba(0,0,0,0.2);
+      text-align: right;
+    }
+    select, button {
+      margin-top: 10px;
+      padding: 10px;
+      font-size: 16px;
+      border-radius: 6px;
+      border: none;
+    }
+    button {
+      background: #e74c3c;
+      color: white;
+      cursor: pointer;
+    }
+  </style>
+</head>
+<body>
+  <h2>أعضاء المكتب</h2>
+  <div id="membersList"></div>
+</body>
+</html>
