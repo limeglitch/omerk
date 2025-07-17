@@ -1,0 +1,122 @@
+<!DOCTYPE html><html lang="ar" dir="rtl">
+<head>
+  <meta charset="UTF-8">
+  <title>تسجيل عضو جديد</title>
+  <script type="module">
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/9.22.2/firebase-app.js";
+    import { getAuth, createUserWithEmailAndPassword } from "https://www.gstatic.com/firebasejs/9.22.2/firebase-auth.js";
+    import { getFirestore, doc, setDoc } from "https://www.gstatic.com/firebasejs/9.22.2/firebase-firestore.js";
+    import { getDocs, query, where, collection } from "https://www.gstatic.com/firebasejs/9.22.2/firebase-firestore.js";
+    import { onAuthStateChanged } from "https://www.gstatic.com/firebasejs/9.22.2/firebase-auth.js";const firebaseConfig = {
+  apiKey: "AIzaSyDxwgtbrA2RVCwEwbn5_FDRJ20cN-IYAl0",
+  authDomain: "cif225.firebaseapp.com",
+  projectId: "cif225",
+  storageBucket: "cif225.firebasestorage.app",
+  messagingSenderId: "852933662256",
+  appId: "1:852933662256:web:e9ba1b9911f3b2e1ed3ff5",
+  measurementId: "G-J9WTSQ00YL"
+};
+
+const app = initializeApp(firebaseConfig);
+const auth = getAuth();
+const db = getFirestore(app);
+
+let currentOfficeId = null;
+
+onAuthStateChanged(auth, async (user) => {
+  if (!user) return location.href = 'index.html';
+
+  const snapshot = await getDocs(query(collection(db, "users"), where("uid", "==", user.uid)));
+  const data = snapshot.docs[0]?.data();
+  if (data?.role !== "admin") return alert("غير مصرح لك بالوصول لهذه الصفحة");
+  currentOfficeId = data.officeId;
+});
+
+document.addEventListener("DOMContentLoaded", () => {
+  const form = document.getElementById("memberForm");
+
+  form.onsubmit = async (e) => {
+    e.preventDefault();
+    const name = form.name.value.trim();
+    const email = form.email.value.trim();
+    const password = form.password.value;
+    const role = form.role.value;
+
+    try {
+      const result = await createUserWithEmailAndPassword(auth, email, password);
+      const user = result.user;
+
+      await setDoc(doc(db, "users", user.uid), {
+        uid: user.uid,
+        email: email,
+        name: name,
+        role: role,
+        officeId: currentOfficeId,
+        createdAt: new Date()
+      });
+
+      alert("تم إضافة العضو بنجاح");
+      form.reset();
+    } catch (err) {
+      alert("حدث خطأ: " + err.message);
+    }
+  }
+});
+
+  </script>
+  <style>
+    body {
+      font-family: 'Cairo', sans-serif;
+      background: linear-gradient(to right, #1f4037, #99f2c8);
+      color: #333;
+      padding: 40px;
+      text-align: center;
+    }
+    h2 {
+      margin-bottom: 30px;
+    }
+    form {
+      background: white;
+      padding: 30px;
+      border-radius: 12px;
+      width: 90%;
+      max-width: 500px;
+      margin: auto;
+      box-shadow: 0 4px 8px rgba(0,0,0,0.2);
+    }
+    input, select, button {
+      display: block;
+      width: 100%;
+      margin: 10px 0;
+      padding: 12px;
+      font-size: 16px;
+      border-radius: 8px;
+      border: 1px solid #ccc;
+    }
+    button {
+      background-color: #2ecc71;
+      color: white;
+      font-weight: bold;
+      cursor: pointer;
+      transition: 0.3s;
+    }
+    button:hover {
+      background-color: #27ae60;
+    }
+  </style>
+</head>
+<body>
+  <h2>تسجيل عضو جديد (محامي / سكرتير)</h2>
+  <form id="memberForm">
+    <input type="text" name="name" placeholder="الاسم الكامل" required>
+    <input type="email" name="email" placeholder="البريد الإلكتروني" required>
+    <input type="password" name="password" placeholder="كلمة المرور" required>
+    <select name="role" required>
+      <option value="">اختر الدور</option>
+      <option value="lawyer">محامي</option>
+      <option value="secretary">سكرتير</option>
+    </select>
+    <button type="submit">تسجيل العضو</button>
+  </form>
+</body>
+</html>
