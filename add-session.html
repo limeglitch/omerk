@@ -1,0 +1,100 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+  <meta charset="UTF-8" />
+  <title>إضافة جلسة</title>
+  <script type="module">
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/9.22.2/firebase-app.js";
+    import { getFirestore, collection, addDoc } from "https://www.gstatic.com/firebasejs/9.22.2/firebase-firestore.js";
+    import { firebaseConfig } from "./firebase-config.js";
+
+    const app = initializeApp(firebaseConfig);
+    const db = getFirestore(app);
+
+    const form = document.getElementById("sessionForm");
+
+    form.addEventListener("submit", async (e) => {
+      e.preventDefault();
+
+      const caseTitle = form.caseTitle.value.trim();
+      const date = form.date.value.trim();
+      const description = form.description.value.trim();
+
+      const officeId = localStorage.getItem("officeId");
+      if (!officeId) {
+        alert("غير مسموح. لم يتم العثور على بيانات المكتب.");
+        return;
+      }
+
+      try {
+        await addDoc(collection(db, "sessions"), {
+          caseTitle,
+          date,
+          description,
+          officeId
+        });
+
+        alert("تم إضافة الجلسة بنجاح.");
+        form.reset();
+      } catch (err) {
+        console.error("خطأ أثناء الإضافة:", err);
+        alert("فشل في إضافة الجلسة.");
+      }
+    });
+  </script>
+  <style>
+    body {
+      font-family: 'Cairo', sans-serif;
+      background: #2c3e50;
+      color: white;
+      padding: 30px;
+      text-align: center;
+    }
+    h2 {
+      font-size: 26px;
+      margin-bottom: 20px;
+    }
+    form {
+      background: #34495e;
+      padding: 20px;
+      border-radius: 10px;
+      width: 80%;
+      margin: auto;
+    }
+    input, textarea {
+      width: 90%;
+      padding: 10px;
+      margin: 10px 0;
+      border: none;
+      border-radius: 6px;
+    }
+    button {
+      padding: 12px 20px;
+      background: #27ae60;
+      color: white;
+      border: none;
+      border-radius: 6px;
+      cursor: pointer;
+    }
+    a {
+      display: inline-block;
+      margin-top: 20px;
+      text-decoration: none;
+      background: #e67e22;
+      color: white;
+      padding: 10px 18px;
+      border-radius: 6px;
+    }
+  </style>
+</head>
+<body>
+  <h2>➕ إضافة جلسة جديدة</h2>
+  <form id="sessionForm">
+    <input type="text" name="caseTitle" placeholder="عنوان القضية" required />
+    <input type="date" name="date" required />
+    <textarea name="description" placeholder="وصف الجلسة" rows="4"></textarea>
+    <button type="submit">إضافة الجلسة</button>
+  </form>
+  <a href="lawyer.html">🔙 العودة</a>
+</body>
+</html>
