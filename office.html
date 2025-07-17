@@ -1,130 +1,103 @@
-<!DOCTYPE html><html lang="ar" dir="rtl">
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
 <head>
-  <meta charset="UTF-8">
-  <title>مكتب المحاماة</title>
-  <script type="module">
-    import { initializeApp } from "https://www.gstatic.com/firebasejs/9.22.2/firebase-app.js";
-    import { getAuth, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/9.22.2/firebase-auth.js";
-    import { getFirestore, doc, getDoc } from "https://www.gstatic.com/firebasejs/9.22.2/firebase-firestore.js";const firebaseConfig = {
-  apiKey: "AIzaSyDxwgtbrA2RVCwEwbn5_FDRJ20cN-IYAl0",
-  authDomain: "cif225.firebaseapp.com",
-  projectId: "cif225",
-  storageBucket: "cif225.firebasestorage.app",
-  messagingSenderId: "852933662256",
-  appId: "1:852933662256:web:e9ba1b9911f3b2e1ed3ff5",
-  measurementId: "G-J9WTSQ00YL"
-};
+  <meta charset="UTF-8">
+  <title>لوحة تحكم الأدمن</title>
+  <style>
+    body {
+      font-family: 'Cairo', sans-serif;
+      background-color: #121212;
+      color: #f1f1f1;
+      margin: 0;
+      padding: 0;
+      text-align: center;
+    }
 
-const app = initializeApp(firebaseConfig);
-const auth = getAuth();
-const db = getFirestore(app);
+    .container {
+      padding: 50px 20px;
+    }
 
-const welcome = document.getElementById("welcome");
-const adminSection = document.getElementById("adminSection");
-const lawyerSection = document.getElementById("lawyerSection");
+    h2 {
+      font-size: 24px;
+      margin-bottom: 20px;
+    }
 
-onAuthStateChanged(auth, async (user) => {
-  if (!user) {
-    window.location.href = "index.html";
-    return;
-  }
+    .email {
+      color: #00cec9;
+      font-weight: bold;
+      margin-bottom: 40px;
+    }
 
-  welcome.textContent = `مرحبًا بك في مكتبك، ${user.email}`;
+    .button {
+      display: block;
+      width: 250px;
+      padding: 15px;
+      margin: 10px auto;
+      background-color: #2c3e50;
+      color: #f1f1f1;
+      border: none;
+      border-radius: 8px;
+      font-size: 16px;
+      cursor: pointer;
+      transition: 0.3s;
+    }
 
-  const userDoc = await getDoc(doc(db, "users", user.uid));
-  if (!userDoc.exists()) {
-    alert("لم يتم العثور على بيانات الحساب.");
-    return;
-  }
+    .button:hover {
+      background-color: #34495e;
+    }
 
-  const role = userDoc.data().role;
+    .logout {
+      background-color: #d63031;
+      margin-top: 30px;
+    }
 
-  if (role === "admin") {
-    adminSection.style.display = "block";
-    lawyerSection.style.display = "none";
-  } else {
-    lawyerSection.style.display = "block";
-    adminSection.style.display = "none";
-  }
-});
+    footer {
+      margin-top: 60px;
+      color: #888;
+      font-size: 14px;
+    }
+  </style>
 
-document.getElementById("logoutBtn").onclick = () => signOut(auth).then(() => location.href = "index.html");
+  <script type="module">
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/9.22.2/firebase-app.js";
+    import { getAuth, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/9.22.2/firebase-auth.js";
+    import { firebaseConfig } from "./firebase-config.js";
 
-  </script>
-  <style>
-    @import url('https://fonts.googleapis.com/css2?family=Cairo:wght@400;700&display=swap');body {
-  font-family: 'Cairo', sans-serif;
-  background: linear-gradient(to right, #2c3e50, #3498db);
-  padding: 30px;
-  text-align: center;
-  color: white;
-}
-h2 {
-  color: #fff;
-  font-size: 28px;
-  margin-bottom: 30px;
-}
-.btn {
-  display: block;
-  padding: 15px;
-  margin: 10px auto;
-  font-size: 18px;
-  border: none;
-  border-radius: 10px;
-  background: #ffffff;
-  color: #2c3e50;
-  width: 80%;
-  cursor: pointer;
-  transition: all 0.3s ease;
-  box-shadow: 0 4px 8px rgba(0,0,0,0.2);
-}
-.btn:hover {
-  background: #f1f1f1;
-}
-#logoutBtn {
-  background: #e74c3c;
-  color: white;
-}
-#logoutBtn:hover {
-  background: #c0392b;
-}
-.section {
-  margin-top: 20px;
-}
-.section-title {
-  font-size: 22px;
-  margin-top: 30px;
-  color: #ecf0f1;
-  border-bottom: 1px solid rgba(255,255,255,0.2);
-  padding-bottom: 10px;
-}
-footer {
-  margin-top: 40px;
-  padding-top: 20px;
-  border-top: 1px solid rgba(255,255,255,0.2);
-  font-size: 14px;
-  color: #ccc;
-}
+    const app = initializeApp(firebaseConfig);
+    const auth = getAuth();
 
-  </style>
+    const emailSpan = document.getElementById("userEmail");
+    const logoutBtn = document.getElementById("logoutBtn");
+
+    onAuthStateChanged(auth, (user) => {
+      if (user) {
+        emailSpan.textContent = user.email;
+      } else {
+        window.location.href = "index.html";
+      }
+    });
+
+    logoutBtn.addEventListener("click", () => {
+      signOut(auth).then(() => {
+        window.location.href = "index.html";
+      });
+    });
+  </script>
 </head>
 <body>
-  <h2 id="welcome">جارٍ التحقق...</h2>  <div class="section" id="adminSection" style="display: none">
-    <div class="section-title">الأدمن</div>
-    <button class="btn" onclick="location.href='admin.html'">لوحة تحكم الأدمن</button>
-    <button class="btn">إدارة الموظفين</button>
-    <button class="btn">إدارة القضايا</button>
-    <button class="btn">تقارير المكتب</button>
-  </div>  <div class="section" id="lawyerSection" style="display: none">
-    <div class="section-title">الموظفين (محامين / سكرتارية)</div>
-    <button class="btn" onclick="location.href='lawyer.html'">لوحة المحامي / السكرتير</button>
-    <button class="btn">عرض القضايا المكلف بها</button>
-    <button class="btn">إضافة تقرير جلسة</button>
-    <button class="btn">أرشيف القضايا</button>
-  </div><button id="logoutBtn" class="btn">🚪 تسجيل الخروج</button>
+  <div class="container">
+    <h2>مرحبًا بك في مكتبك، <span id="userEmail" class="email">...</span></h2>
 
-  <footer>
-    برعاية محمد منطاوي • Developed by <strong>Lime Glitch</strong>
-  </footer>
+    <button class="button" onclick="location.href='cases.html'">📂 القضايا</button>
+    <button class="button" onclick="location.href='members.html'">👥 الأعضاء</button>
+    <button class="button" onclick="location.href='sessions.html'">📅 الجلسات</button>
+    <button class="button" onclick="location.href='reports.html'">📊 التقارير</button>
+
+    <button id="logoutBtn" class="button logout">🚪 تسجيل الخروج</button>
+
+    <footer>
+      برعاية محمد منطاوي • Developed by Lime Glitch
+    </footer>
+  </div>
 </body>
 </html>
