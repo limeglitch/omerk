@@ -1,0 +1,91 @@
+<!DOCTYPE html><html lang="ar" dir="rtl">
+<head>
+  <meta charset="UTF-8">
+  <title>تفاصيل القضية</title>
+  <script type="module">
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/9.22.2/firebase-app.js";
+    import { getFirestore, doc, getDoc } from "https://www.gstatic.com/firebasejs/9.22.2/firebase-firestore.js";const firebaseConfig = {
+  apiKey: "AIzaSyDxwgtbrA2RVCwEwbn5_FDRJ20cN-IYAl0",
+  authDomain: "cif225.firebaseapp.com",
+  projectId: "cif225",
+  storageBucket: "cif225.firebasestorage.app",
+  messagingSenderId: "852933662256",
+  appId: "1:852933662256:web:e9ba1b9911f3b2e1ed3ff5",
+  measurementId: "G-J9WTSQ00YL"
+};
+
+const app = initializeApp(firebaseConfig);
+const db = getFirestore(app);
+
+const params = new URLSearchParams(window.location.search);
+const caseId = params.get("id");
+
+const titleEl = document.getElementById("caseTitle");
+const numberEl = document.getElementById("caseNumber");
+const partiesEl = document.getElementById("caseParties");
+const dateEl = document.getElementById("caseDate");
+const descEl = document.getElementById("caseDescription");
+
+async function loadCaseDetails() {
+  if (!caseId) {
+    alert("لا يوجد رقم قضية.");
+    return;
+  }
+  const docRef = doc(db, "cases", caseId);
+  const docSnap = await getDoc(docRef);
+
+  if (docSnap.exists()) {
+    const data = docSnap.data();
+    titleEl.textContent = data.title || "-";
+    numberEl.textContent = data.number || "-";
+    partiesEl.textContent = data.parties || "-";
+    dateEl.textContent = data.date || "-";
+    descEl.textContent = data.description || "-";
+  } else {
+    alert("لم يتم العثور على القضية.");
+  }
+}
+
+loadCaseDetails();
+
+  </script>
+  <style>
+    body {
+      font-family: 'Cairo', sans-serif;
+      background: #f4f6f8;
+      padding: 20px;
+      text-align: right;
+      color: #333;
+    }
+    h2 {
+      color: #2c3e50;
+      margin-bottom: 20px;
+    }
+    .case-box {
+      background: white;
+      padding: 20px;
+      border-radius: 10px;
+      box-shadow: 0 2px 6px rgba(0,0,0,0.1);
+      max-width: 700px;
+      margin: auto;
+    }
+    .case-box div {
+      margin-bottom: 15px;
+    }
+    .label {
+      font-weight: bold;
+      color: #2980b9;
+    }
+  </style>
+</head>
+<body>
+  <h2>تفاصيل القضية</h2>
+  <div class="case-box">
+    <div><span class="label">عنوان القضية:</span> <span id="caseTitle">...</span></div>
+    <div><span class="label">رقم القضية:</span> <span id="caseNumber">...</span></div>
+    <div><span class="label">الأطراف:</span> <span id="caseParties">...</span></div>
+    <div><span class="label">تاريخ الجلسة:</span> <span id="caseDate">...</span></div>
+    <div><span class="label">وصف القضية:</span> <span id="caseDescription">...</span></div>
+  </div>
+</body>
+</html>
