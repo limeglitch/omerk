@@ -1,0 +1,101 @@
+<!DOCTYPE html><html lang="ar" dir="rtl">
+<head>
+  <meta charset="UTF-8">
+  <title>تسجيل دخول الأدمن</title>
+  <script type="module">
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/9.22.2/firebase-app.js";
+    import { getAuth, signInWithEmailAndPassword, sendPasswordResetEmail } from "https://www.gstatic.com/firebasejs/9.22.2/firebase-auth.js";
+    import { getFirestore, doc, getDoc } from "https://www.gstatic.com/firebasejs/9.22.2/firebase-firestore.js";const firebaseConfig = {
+  apiKey: "AIzaSyDxwgtbrA2RVCwEwbn5_FDRJ20cN-IYAl0",
+  authDomain: "cif225.firebaseapp.com",
+  projectId: "cif225",
+  storageBucket: "cif225.firebasestorage.app",
+  messagingSenderId: "852933662256",
+  appId: "1:852933662256:web:e9ba1b9911f3b2e1ed3ff5",
+  measurementId: "G-J9WTSQ00YL"
+};
+
+const app = initializeApp(firebaseConfig);
+const auth = getAuth(app);
+const db = getFirestore(app);
+
+document.getElementById("loginBtn").onclick = async () => {
+  const email = document.getElementById("email").value;
+  const password = document.getElementById("password").value;
+
+  try {
+    const userCredential = await signInWithEmailAndPassword(auth, email, password);
+    const user = userCredential.user;
+    const userDoc = await getDoc(doc(db, "users", user.uid));
+
+    if (!userDoc.exists() || userDoc.data().role !== "admin") {
+      alert("هذا الحساب ليس أدمن.");
+      return;
+    }
+
+    location.href = "office.html";
+  } catch (error) {
+    alert("فشل تسجيل الدخول: " + error.message);
+  }
+};
+
+document.getElementById("resetPassword").onclick = async () => {
+  const email = document.getElementById("email").value;
+  if (!email) return alert("من فضلك أدخل بريدك الإلكتروني.");
+  try {
+    await sendPasswordResetEmail(auth, email);
+    alert("تم إرسال رابط استعادة كلمة السر إلى بريدك.");
+  } catch (error) {
+    alert("حدث خطأ: " + error.message);
+  }
+};
+
+  </script>
+  <style>
+    body {
+      font-family: 'Cairo', sans-serif;
+      background: linear-gradient(to right, #34495e, #2ecc71);
+      padding: 40px;
+      text-align: center;
+      color: white;
+    }
+    h2 {
+      margin-bottom: 30px;
+    }
+    input {
+      display: block;
+      width: 80%;
+      margin: 10px auto;
+      padding: 12px;
+      border-radius: 8px;
+      border: none;
+      font-size: 16px;
+    }
+    button {
+      padding: 12px 20px;
+      font-size: 16px;
+      background-color: #27ae60;
+      color: white;
+      border: none;
+      border-radius: 8px;
+      cursor: pointer;
+      margin-top: 10px;
+    }
+    button:hover {
+      background-color: #219150;
+    }
+    .link {
+      margin-top: 15px;
+      font-size: 14px;
+      color: #ecf0f1;
+      cursor: pointer;
+      text-decoration: underline;
+    }
+  </style>
+</head>
+<body>
+  <h2>تسجيل دخول الأدمن</h2>  <input type="email" id="email" placeholder="البريد الإلكتروني">
+  <input type="password" id="password" placeholder="كلمة السر">
+  <button id="loginBtn">تسجيل الدخول</button>  <div class="link" id="resetPassword">هل نسيت كلمة السر؟</div>
+</body>
+</html>
